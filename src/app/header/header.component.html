@@ -1,0 +1,24 @@
+<mat-toolbar color="primary">
+    <span>
+      <a routerLink="/">MyShop</a>
+    </span>
+    <span class="spacer"></span>
+    <ul>
+      <li *ngIf="adminAuth">
+        <a mat-button routerLink="/add-product" routerLinkActive="mat-accent">Add product</a>
+      </li>
+      <li *ngIf="userAuth">
+        <a mat-button routerLink="/cart" routerLinkActive="mat-accent">Cart</a>
+      </li>
+      <li *ngIf="!userAuth">
+        <a mat-button routerLink="/login" routerLinkActive="mat-accent">Login</a>
+      </li>
+      <li *ngIf="!userAuth">
+        <a mat-button routerLink="/signup" routerLinkActive="mat-accent">Signup</a>
+      </li>
+      <li *ngIf="userAuth || adminAuth">
+        <button mat-button (click)="Logout()">Logout</button>
+      </li>
+    </ul>
+</mat-toolbar>
+  

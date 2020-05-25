@@ -1,0 +1,20 @@
+.order {
+    grid-area: order;
+}
+
+.content {
+    grid-area: content;
+}
+
+.conteiner {
+    display: grid;
+    grid-template-columns: 20% auto;
+    grid-template-areas: 
+    "order content";
+}   
+
+.content {
+    display: flex;
+    align-items: center;
+    justify-content: space-evenly;
+}

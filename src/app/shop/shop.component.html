@@ -1,0 +1,8 @@
+<div class="content">
+    <mat-card *ngFor="let product of products">
+        <img [src]="product.image" [alt]="product.title" class="image">
+        <p>Title: {{product.title}}</p>
+        <p>Price: ${{product.price}}</p>
+        <button mat-raised-button (click)="addToCart(product.id)">In cart</button>
+    </mat-card>
+</div>

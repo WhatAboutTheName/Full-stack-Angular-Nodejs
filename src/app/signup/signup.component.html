@@ -1,0 +1,17 @@
+<div class="contauner">
+    <form (submit)="Signup(signUpForm)" #signUpForm="ngForm" class="form">
+        <mat-form-field class="example-full-width mat_form name">
+            <mat-label>Name</mat-label>
+            <input matInput name="name" ngModel placeholder="Name" type="text" required>
+        </mat-form-field>
+        <mat-form-field class="example-full-width mat_form email">
+            <mat-label>E-Mail</mat-label>
+            <input matInput name="email" ngModel placeholder="E-Mail" type="email" required>
+        </mat-form-field>
+        <mat-form-field class="example-full-width mat_form password">
+            <mat-label>Password</mat-label>
+            <input matInput name="password" ngModel placeholder="Password" type="password" required>
+        </mat-form-field>
+        <button mat-raised-button color="primary" type="submit" class="btn">accept</button>
+    </form>
+</div>

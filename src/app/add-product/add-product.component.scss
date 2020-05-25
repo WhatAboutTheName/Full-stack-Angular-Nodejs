@@ -1,0 +1,45 @@
+.mat_form {
+    display: inline;
+}
+
+.btn {
+    grid-area: btn;
+}
+
+.title {
+    grid-area: title;
+}
+
+.price {
+    grid-area: price;
+}
+
+.image {
+    grid-area: image;
+}
+
+.image-preview {
+    grid-area: image-preview;
+}
+
+.form {
+    display: grid;
+    grid-template-columns: 25% auto 25%;
+    grid-template-rows: 5% auto;
+    grid-template-areas: 
+    ". . ."
+    ". title ."
+    ". price ."
+    ". image ."
+    ". image-preview ."
+    ". btn ."
+    ". . .";
+}
+
+.pickBtn {
+    width: 100%;
+}
+
+input[type="file"] {
+  visibility: hidden;
+}

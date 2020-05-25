@@ -1,0 +1,17 @@
+<div class="conteiner">
+    <div class="order">
+        <mat-card>
+            <p>Quantity: ${{order.sum}}</p>
+            <button mat-raised-button (click)="postOrder()">Accept</button>
+        </mat-card>
+    </div>
+    <div class="content">
+        <mat-card *ngFor="let product of products">
+            <img [src]="product.image" [alt]="product.title" class="image">
+            <p>Title: {{product.title}}</p>
+            <p>Quantity: {{product.quantity}}</p>
+            <p>Price: ${{product.price * product.quantity}}</p>
+            <button mat-raised-button (click)="delete(product._id)">Delete</button>
+        </mat-card>
+    </div>
+</div>

@@ -1,0 +1,27 @@
+.mat_form {
+    display: inline;
+}
+
+.btn {
+    grid-area: btn;
+}
+
+.email {
+    grid-area: email;
+}
+
+.password {
+    grid-area: password;
+}
+
+.form {
+    display: grid;
+    grid-template-columns: 25% auto 25%;
+    grid-template-rows: 5% repeat(3, 1fr) auto;
+    grid-template-areas: 
+    ". . ."
+    ". email ."
+    ". password ."
+    ". btn ."
+    ". . .";
+}   
