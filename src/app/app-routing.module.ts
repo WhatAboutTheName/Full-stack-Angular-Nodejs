@@ -1,10 +1,8 @@
 import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
-import { LogInComponent } from './login/login.component';
-import { SignupComponent } from './signup/signup.component';
 import { ShopComponent } from './shop/shop.component';
-import { AuthGuard } from './guard/auth.guard';
-import { AdminGuard } from './guard/admin.guard';
+import { AuthGuard } from './auth/auth.guard';
+import { AdminGuard } from './auth/admin.guard';
 import { AddProductComponent } from './add-product/add-product.component';
 import { CartComponent } from './cart/cart.component';
 
@@ -12,8 +10,7 @@ const routes: Routes = [
   { path: '', component: ShopComponent, canActivate: [AuthGuard]},
   { path: 'add-product', component: AddProductComponent, canActivate: [AuthGuard, AdminGuard]},
   { path: 'cart', component: CartComponent, canActivate: [AuthGuard]},
-  { path: 'login', component: LogInComponent},
-  { path: 'signup', component: SignupComponent },
+  { path: 'auth', loadChildren: () => import('./auth/auth.module').then(model => model.AuthModule)}
 ];
 
 @NgModule({
