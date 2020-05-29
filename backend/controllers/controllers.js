@@ -1,106 +1,83 @@
 const Product = require('../models/product');
 const User = require('../models/user');
 
-exports.getProduct = (req, res, next) => {
-  Product.find()
-    .then(product => {
-      res.status(200).json({
-        message: 'Fetched product successfully.',
-        product: product
-      });
-    })
-    .catch(err => {
-      if (!err.statusCode) {
-        err.statusCode = 500;
-      }
-      next(err);
+exports.getProduct = async (req, res, next) => {
+  try {
+    const prod = await Product.find()
+    res.status(200).json({
+      message: 'Fetched product successfully.',
+      product: prod
     });
-}
-
-exports.addToCart = (req, res, next) => {
-  User.findOne({_id: req.body.userId})
-    .then(user => {
-      Product.findById(req.body.productId)
-        .then(prod => {
-          user.addToCart(prod);
-        })
-        .catch(err => {
-          if (!err.statusCode) {
-            err.statusCode = 500;
-          }
-          next(err);
-        })
-    })
-    .then(user => {
-      res.status(200).json({
-        message: 'Product add in cart!'
-      });
-    })
-    .catch(err => {
-      if (!err.statusCode) {
-        err.statusCode = 500;
-      }
-      next(err);
-    })
-}
-
-exports.productInCart = (req, res, next) => {
-  User.findOne({_id: req.query.id})
-    .then(user => {
-      user.populate('cart.items.productId')
-      .execPopulate()
-      .then(user => {
-        res.status(200).json({
-          message: 'Product in cart!',
-          product: user.cart.items
-        });
-      })
-    })
-    .catch(err => {
-      if (!err.statusCode) {
-        err.statusCode = 500;
-      }
-      next(err);
-    })
-}
-
-exports.deleteCartProduct = (req, res, next) => {
-  const userId = req.body.userId;
-  const prodId = req.body.prodId;
-  User.findOne({_id: userId})
-  .then(user => {
-    user
-      .deleteItemFromCart(prodId)
-      .then(result => {
-        res.status(200).json({
-          message: 'Product delete!'
-        });
-      })
-  })
-  .catch(err => {
+  } catch(err) {
     if (!err.statusCode) {
       err.statusCode = 500;
     }
     next(err);
-  });
+  }
 }
 
-exports.orderCreate = (req, res, next) => {
+exports.addToCart = async (req, res, next) => {
+  try {
+    const user = await User.findOne({_id: req.body.userId});
+    const prod = await Product.findById(req.body.productId);
+    user.addToCart(prod);
+    res.status(200).json({
+      message: 'Product add in cart!'
+    });
+  } catch(err) {
+    if (!err.statusCode) {
+      err.statusCode = 500;
+    }
+    next(err);
+  }
+}
+
+exports.productInCart = async (req, res, next) => {
+  try {
+    const user = await User.findOne({_id: req.query.id});
+    const inCart = await user.populate('cart.items.productId').execPopulate();
+    res.status(200).json({
+      message: 'Product in cart!',
+      product: inCart.cart.items
+    });
+  } catch(err) {
+    if (!err.statusCode) {
+      err.statusCode = 500;
+    }
+    next(err);
+  }
+}
+
+exports.deleteCartProduct = async (req, res, next) => {
+  const userId = req.body.userId;
+  const prodId = req.body.prodId;
+  try {
+    const user = await User.findOne({_id: userId});
+    const del = await user.deleteItemFromCart(prodId);
+    res.status(200).json({
+      message: 'Product delete!'
+    });
+  } catch(err) {
+    if (!err.statusCode) {
+      err.statusCode = 500;
+    }
+    next(err);
+  }
+}
+
+exports.orderCreate = async (req, res, next) => {
   const userId = req.body.userId;
   const sum = req.body.sum;
-  User.findOne({admin: true})
-  .then(user => {
+  try {
+    const user = await User.findOne({admin: true})
     user.addToOrder(userId, sum);
-  })
-  .then(result => {
     res.status(200).json({
       message: 'Order create!'
     });
-  })
-  .catch(err => {
+  } catch(err) {
     if (!err.statusCode) {
       err.statusCode = 500;
     }
     next(err);
-  })
+  }
 }
