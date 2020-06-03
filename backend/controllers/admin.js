@@ -1,3 +1,4 @@
+const io = require('../socket');
 const Product = require('../models/product');
 
 exports.addProduct = async (req, res, next) => {
@@ -11,6 +12,7 @@ exports.addProduct = async (req, res, next) => {
       image: image + "/images/" + req.file.filename
     });
     const prod = await product.save();
+    io.getIO().emit('newProduct', {action: 'newProduct', product: prod});
     res.status(201).json({message: "Post added successfully"});
   } catch (err) {
     if (!err.statusCode) {

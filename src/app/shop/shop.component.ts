@@ -3,6 +3,7 @@ import { AllRoutsService } from '../service/all-routs.service';
 import { Product } from '../interface/product';
 import { Subscription } from 'rxjs';
 import { AuthService } from '../service/auth.service';
+import { WebsocketService } from '../service/websocket.service';
 
 @Component({
   selector: 'app-shop',
@@ -13,9 +14,20 @@ export class ShopComponent implements OnInit, OnDestroy {
   products: Product[];
   private productList: Subscription;
 
-  constructor(private allRouts: AllRoutsService, private auth: AuthService) { }
+  test;
+
+  constructor(
+    private allRouts: AllRoutsService,
+    private auth: AuthService,
+    private websoket: WebsocketService
+  ) { }
 
   ngOnInit() {
+    this.websoket.listen('newProduct').subscribe((data: {action: string, product: any}) => {
+      if (data.action === 'newProduct') {
+        this.products.push(data.product);
+      }
+    })
     this.allRouts.getProduct();
     this.productList = this.allRouts.getProductListener()
       .subscribe((products: Product[]) => {
