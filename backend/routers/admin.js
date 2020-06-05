@@ -32,4 +32,6 @@ const storage = multer.diskStorage({
 
 router.post('/addProduct', checkAuth, multer({ storage: storage }).single("image"), admin.addProduct);
 
+router.patch('/execute-order', checkAuth, admin.executeOrder);
+
 module.exports = router;

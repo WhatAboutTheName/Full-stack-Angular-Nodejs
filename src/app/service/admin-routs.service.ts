@@ -19,4 +19,11 @@ export class AdminRoutsService {
             this.router.navigate(["/"]);
         });
     }
+
+    executeOrder(userId: string, orderId: string) {
+        const id = {userId: userId, orderId: orderId};
+        this.http
+        .patch<{massage: string}>(BACKEND_URL + 'execute-order', id)
+          .subscribe()
+    }
 }

@@ -14,6 +14,10 @@ const userSchema = new Schema({
     type: String,
     required: true
   },
+  phoneNumber: {
+    type: String,
+    required: true
+  },
   admin: {
     type: Boolean,
     required: true,
@@ -31,15 +35,35 @@ const userSchema = new Schema({
       }
     ]
   },
+  orderStatistics: {
+    Successful: {
+      type: Number,
+      required: true,
+      default: 0
+    },
+    Unsuccessful: {
+      type: Number,
+      required: true,
+      default: 0
+    }
+  },
   order: [
     {
       userId: {
         type: Schema.Types.ObjectId,
         required: true
       },
-      sum: {
+      prodId: [{
+        type: Schema.Types.ObjectId,
+        required: true
+      }],
+      allSum: {
         type: Number,
         required: true
+      },
+      orderId: {
+        type: Schema.Types.ObjectId,
+        required: false
       }
     }
   ]
@@ -76,13 +100,36 @@ userSchema.methods.deleteItemFromCart = function(productId) {
   return this.save();
 };
 
-userSchema.methods.addToOrder = function(userId, sum) {
-  if (userId && sum) {
-    const newOrder = [...this.order];
-    newOrder.push({userId: userId, sum: sum});
-    this.order = newOrder;
-    return this.save();
+userSchema.methods.deleteCart = function() {
+  this.cart.items = [];
+  return this.save();
+};
+
+userSchema.methods.addToOrder = function(userId, prodId, allSum, orderId) {
+  const newOrder = [...this.order];
+  newOrder.push({userId: userId, prodId: prodId, allSum: allSum, orderId: orderId});
+  this.order = newOrder;
+  return this.save();
+}
+
+userSchema.methods.deleteOrder = function(orderId, admin) {
+  let newOrder = [];
+  if (admin) {
+    newOrder = this.order.filter(item => item.orderId.toString() !== orderId.toString());
+  } else {
+    newOrder = this.order.filter(item => item._id.toString() !== orderId.toString());
   }
+  this.order = newOrder;
+  return this.save();
+}
+
+userSchema.methods.orderStatisticsAll = function(value) {
+  if (!value) {
+    this.orderStatistics.Unsuccessful += 1;
+  } else {
+    this.orderStatistics.Successful += 1;
+  }
+  return this.save();
 }
 
 module.exports = mongoose.model('User', userSchema);

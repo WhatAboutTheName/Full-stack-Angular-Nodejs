@@ -12,7 +12,7 @@ import { WebsocketService } from '../service/websocket.service';
 })
 export class ShopComponent implements OnInit, OnDestroy {
   products: Product[];
-  private productList: Subscription;
+  private productsList: Subscription;
 
   test;
 
@@ -24,12 +24,10 @@ export class ShopComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.websoket.listen('newProduct').subscribe((data: {action: string, product: any}) => {
-      if (data.action === 'newProduct') {
-        this.products.push(data.product);
-      }
-    })
-    this.allRouts.getProduct();
-    this.productList = this.allRouts.getProductListener()
+      this.products.push(data.product);
+    });
+    this.allRouts.getProducts();
+    this.productsList = this.allRouts.getProductListener()
       .subscribe((products: Product[]) => {
         this.products = products;
       });
@@ -40,6 +38,6 @@ export class ShopComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy() {
-    this.productList.unsubscribe();
+    this.productsList.unsubscribe();
   }
 }

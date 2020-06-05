@@ -1,7 +1,7 @@
 <div class="conteiner">
     <div class="order">
-        <mat-card>
-            <p>Quantity: ${{order.sum}}</p>
+        <mat-card *ngIf="order">
+            <p>Quantity: ${{order.allSum}}</p>
             <button mat-raised-button (click)="postOrder()">Accept</button>
         </mat-card>
     </div>

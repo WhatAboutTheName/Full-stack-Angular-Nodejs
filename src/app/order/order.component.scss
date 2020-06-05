@@ -1,0 +1,28 @@
+.user_name {
+    grid-area: name;
+}
+
+.user_email {
+    grid-area: email;
+}
+
+.user_phoneNumber {
+    grid-area: phoneNumber;
+}
+
+.user_allSum {
+    grid-area: allSum;
+}
+
+.title {
+    display: grid;
+    grid-template-columns: 13rem 17rem 16rem 7rem;
+    grid-template-areas: 
+    "name email phoneNumber allSum";
+}
+
+.order_data {
+    display: flex;
+    align-items: center;
+    justify-content: space-evenly;
+}

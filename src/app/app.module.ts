@@ -1,5 +1,5 @@
 import { BrowserModule } from '@angular/platform-browser';
-import { NgModule } from '@angular/core';
+import { NgModule, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 
 import { FormsModule, ReactiveFormsModule }   from '@angular/forms';
 import { AppRoutingModule } from './app-routing.module';
@@ -13,6 +13,7 @@ import { AuthIntercepter } from './auth/auth-intercepter';
 import { AddProductComponent } from './add-product/add-product.component';
 import { CartComponent } from './cart/cart.component';
 import { AngularMaterialModule } from './angular-material.module';
+import { OrderComponent } from './order/order.component';
 
 @NgModule({
   declarations: [
@@ -20,7 +21,8 @@ import { AngularMaterialModule } from './angular-material.module';
     HeaderComponent,
     ShopComponent,
     AddProductComponent,
-    CartComponent
+    CartComponent,
+    OrderComponent,
   ],
   imports: [
     AngularMaterialModule,
@@ -32,6 +34,7 @@ import { AngularMaterialModule } from './angular-material.module';
     ReactiveFormsModule,
   ],
   providers: [{provide: HTTP_INTERCEPTORS, useClass: AuthIntercepter, multi: true}],
-  bootstrap: [AppComponent]
+  bootstrap: [AppComponent],
+  schemas: [ CUSTOM_ELEMENTS_SCHEMA ]
 })
 export class AppModule { }

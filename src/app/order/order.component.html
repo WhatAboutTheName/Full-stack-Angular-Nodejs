@@ -1,0 +1,25 @@
+<div *ngIf="userData">
+  <mat-accordion>
+    <mat-expansion-panel *ngFor="let data of userData">
+      <mat-expansion-panel-header>
+        <span class="title">
+          <p class="user_name">Name: {{data.name}}</p>
+          <p class="user_email">Email: {{data.email}}</p>
+          <p class="user_phoneNumber">Phone number: {{data.phoneNumber}}</p>
+          <p class="user_allSum">Sum: ${{data.allSum}}</p>
+        </span>
+      </mat-expansion-panel-header>
+      <div class="order_data">
+        <mat-card *ngFor="let order of data.order">
+          <img [src]="order.image" [alt]="order.title" class="image">
+          <p>Title: {{order.title}}</p>
+          <p>Price: ${{order.price}}</p>
+        </mat-card>
+      </div>
+      <mat-action-row>
+        <button mat-button color="primary" *ngIf="adminAuth" (click)="executeOrder(data.userId, data.orderId)">EXECUTE THE ORDER</button>
+        <button mat-button color="warn" (click)="cancelOrder(data.userId, data.orderId)">CANCEL THE ORDER</button>
+      </mat-action-row>
+    </mat-expansion-panel>
+  </mat-accordion>
+</div>

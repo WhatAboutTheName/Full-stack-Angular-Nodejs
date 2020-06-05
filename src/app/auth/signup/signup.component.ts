@@ -18,6 +18,6 @@ export class SignupComponent implements OnInit {
     if (form.invalid) {
       return;
     }
-    this.auth.Signup(form.value.name, form.value.email, form.value.password);
+    this.auth.Signup(form.value.name, form.value.email, form.value.password, form.value.phoneNumber);
   }
 }

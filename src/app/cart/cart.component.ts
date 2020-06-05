@@ -1,7 +1,13 @@
-import { Component, OnInit, AfterViewChecked } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { AllRoutsService } from '../service/all-routs.service';
 import { AuthService } from '../service/auth.service';
 import { Subscription } from 'rxjs';
+
+interface order {
+  userId: string,
+  prodId: string[],
+  allSum: number
+}
 
 @Component({
   selector: 'app-cart',
@@ -10,15 +16,12 @@ import { Subscription } from 'rxjs';
 })
 export class CartComponent implements OnInit {
   products;
-  order = {
-    usedId: '',
-    sum: 0
-  };
+  order: order;
   private cartList: Subscription;
   
   constructor(
     private allRouts: AllRoutsService,
-    private auth: AuthService,
+    private auth: AuthService
   ) {}
 
   ngOnInit() {
@@ -39,17 +42,19 @@ export class CartComponent implements OnInit {
           return item.productId;
         });
         if (this.products) {
-          let allSum = 0;
+          let allSum = 0,
+            prodId = [];
           this.products.forEach(el => {
             allSum += Number(el.price) * Number(el.quantity);
+            prodId = [...prodId, el._id]
           });
-          this.order = {usedId: String(this.auth.getUserId()) || '', sum: allSum || 0};
+          this.order = {userId: this.auth.getUserId(), prodId: prodId, allSum: allSum};
         }
       });
   }
 
   postOrder() {
-    this.allRouts.orderCreate(this.order.usedId, this.order.sum);
+    this.allRouts.orderCreate(this.order.userId, this.order.prodId, this.order.allSum);
   }
 
   ngOnDestroy() {

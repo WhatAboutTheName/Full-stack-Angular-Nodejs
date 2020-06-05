@@ -1,10 +1,10 @@
 import { Injectable } from "@angular/core";
 import { HttpClient } from "@angular/common/http";
-import { Router } from '@angular/router';
 import { environment } from '../../environments/environment';
 import { Subject } from 'rxjs';
 import { Product } from '../interface/product';
 import { map } from 'rxjs/operators';
+import { Router } from '@angular/router';
 
 const BACKEND_URL = environment.apiUrl + 'all/';
 
@@ -15,11 +15,14 @@ export class AllRoutsService {
   private productsList = new Subject<Product[]>();
   private cartList = new Subject();
 
-  constructor(private http: HttpClient, private router: Router) {}
+  constructor(
+    private http: HttpClient,
+    private router: Router
+  ) {}
 
-  getProduct() {
+  getProducts() {
     this.http
-      .get<{ message: string, product: any }>(BACKEND_URL + 'get-product')
+      .get<{ message: string, product: any }>(BACKEND_URL + 'get-products')
       .pipe(map((prodData) => {
         return prodData.product.map(prod => {
           return {
@@ -40,9 +43,7 @@ export class AllRoutsService {
     const id = {productId: productId, userId: userId};
     this.http
       .patch<{massage: string}>(BACKEND_URL + 'add-cart-product', id)
-        .subscribe(massage => {
-          console.log(massage);
-        });
+        .subscribe();
   }
 
   getProductInCart(userId: string, prodId?: string) {
@@ -62,11 +63,24 @@ export class AllRoutsService {
         .subscribe();
   }
 
-  orderCreate(userId: string, sum: number) {
-    const order = {userId: userId, sum: sum};
+  orderCreate(userId: string, prodId: string[], allSum: number) {
+    const order = {userId: userId, prodId: prodId, allSum: allSum};
     this.http
       .patch<{massage: string}>(BACKEND_URL + 'order-create', order)
-        .subscribe();
+        .subscribe(req => this.router.navigate(['/order']));
+  }
+
+  getOrder(userId: string) {
+    this.http
+    .get<{userData: {data: any[]}}>(BACKEND_URL + `all-order/:?id=${userId}`)
+      .subscribe();
+  }
+
+  deleteOrder(userId: string, orderId: string, activUserId: string) {
+    const id = {userId: userId, orderId: orderId, activUserId: activUserId};
+    this.http
+    .patch<{massage: string}>(BACKEND_URL + 'delete-order', id)
+      .subscribe()
   }
 
   getProductListener() {

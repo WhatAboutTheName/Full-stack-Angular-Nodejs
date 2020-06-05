@@ -42,12 +42,12 @@ export class AuthService {
         return this.authChecked;
     }
 
-    Signup(name: string, email: string, password: string) {
-        const user = {name: name, email: email, password: password}
+    Signup(name: string, email: string, password: string, phoneNumber: string) {
+        const user = {name: name, email: email, password: password, phoneNumber: phoneNumber}
         this.http
             .put(BACKEND_URL + 'signup', user)
             .subscribe(res => {
-                console.log(res)
+                this.router.navigate(['/auth/login']);
             });
     }
 
