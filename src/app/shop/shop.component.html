@@ -1,8 +1,17 @@
 <div class="content">
-    <mat-card *ngFor="let product of products">
-        <img [src]="product.image" [alt]="product.title" class="image">
-        <p>Title: {{product.title}}</p>
-        <p>Price: ${{product.price}}</p>
-        <button mat-raised-button (click)="addToCart(product.id)">In cart</button>
+    <mat-card class="product" *ngFor="let product of products">
+        <div class="prod_content">
+            <div class="prod_image">
+                <img [src]="product.image" [alt]="product.title">
+            </div>
+            <div class="prod_info">
+                <p>Title: {{product.title}}</p>
+                <p>Price: ${{product.price}}</p>
+            </div>
+            <div class="btn_content">
+                <button mat-raised-button *ngIf="userId" (click)="addToCart(product.id)">In cart</button>
+                <button mat-raised-button *ngIf="adminAuth" (click)="edit(product.id)">Edit</button>
+            </div>
+        </div>
     </mat-card>
 </div>

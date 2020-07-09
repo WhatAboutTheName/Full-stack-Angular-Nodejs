@@ -2,11 +2,12 @@ import { Component, OnInit } from '@angular/core';
 import { AllRoutsService } from '../service/all-routs.service';
 import { AuthService } from '../service/auth.service';
 import { Subscription } from 'rxjs';
+import { MatDialogConfig, MatDialog } from '@angular/material';
+import { CartEditComponent } from './cart-edit/cart-edit.component';
 
 interface order {
   userId: string,
-  prodId: string[],
-  allSum: number
+  prodData: [{ prodId: string, prodQuantity: number }]
 }
 
 @Component({
@@ -15,17 +16,32 @@ interface order {
   styleUrls: ['./cart.component.scss']
 })
 export class CartComponent implements OnInit {
-  products;
+
+  products: any[];
   order: order;
+  allSum: number = 0;
   private cartList: Subscription;
   
   constructor(
     private allRouts: AllRoutsService,
-    private auth: AuthService
+    private auth: AuthService,
+    private dialog: MatDialog,
   ) {}
 
   ngOnInit() {
     this.getProduct();
+  }
+
+  edit(prodId: string, quantity: number) {
+    const dialogConfig = new MatDialogConfig();
+    dialogConfig.data = {
+      prodId: prodId,
+      quantity: quantity
+    };
+    this.dialog.open(CartEditComponent, dialogConfig).afterClosed().subscribe(el => {
+      this.cartList.unsubscribe();
+      this.getProduct();
+    });
   }
 
   delete(id: string) {
@@ -42,19 +58,19 @@ export class CartComponent implements OnInit {
           return item.productId;
         });
         if (this.products) {
-          let allSum = 0,
-            prodId = [];
+          this.allSum = 0;
+          let prodData: order['prodData'] | any[] = [];
           this.products.forEach(el => {
-            allSum += Number(el.price) * Number(el.quantity);
-            prodId = [...prodId, el._id]
+            this.allSum += Number(el.quantity) * Number(el.price);
+            prodData.push({ prodId: el._id, prodQuantity: el.quantity });
           });
-          this.order = {userId: this.auth.getUserId(), prodId: prodId, allSum: allSum};
+          this.order = {userId: this.auth.getUserId(), prodData: prodData as order['prodData']};
         }
       });
   }
 
   postOrder() {
-    this.allRouts.orderCreate(this.order.userId, this.order.prodId, this.order.allSum);
+    this.allRouts.orderCreate(this.order.userId, this.order.prodData);
   }
 
   ngOnDestroy() {

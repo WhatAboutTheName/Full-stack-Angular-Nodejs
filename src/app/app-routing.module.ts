@@ -8,11 +8,11 @@ import { CartComponent } from './cart/cart.component';
 import { OrderComponent } from './order/order.component';
 
 const routes: Routes = [
-  { path: '', component: ShopComponent, canActivate: [AuthGuard]},
-  { path: 'add-product', component: AddProductComponent, canActivate: [AuthGuard, AdminGuard]},
-  { path: 'cart', component: CartComponent, canActivate: [AuthGuard]},
-  { path: 'order', component: OrderComponent, canActivate: [AuthGuard]},
-  { path: 'auth', loadChildren: () => import('./auth/auth.module').then(model => model.AuthModule)}
+  { path: '', component: ShopComponent },
+  { path: 'add-product', component: AddProductComponent, canActivate: [AuthGuard, AdminGuard] },
+  { path: 'cart', component: CartComponent, canActivate: [AuthGuard] },
+  { path: 'order', component: OrderComponent, canActivate: [AuthGuard] },
+  { path: 'auth', loadChildren: () => import('./auth/auth.module').then(model => model.AuthModule) }
 ];
 
 @NgModule({

@@ -1,9 +1,6 @@
 .order {
     grid-area: order;
-}
-
-.content {
-    grid-area: content;
+    margin-top: 2rem;
 }
 
 .conteiner {
@@ -14,7 +11,6 @@
 }   
 
 .content {
-    display: flex;
-    align-items: center;
-    justify-content: space-evenly;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
 }

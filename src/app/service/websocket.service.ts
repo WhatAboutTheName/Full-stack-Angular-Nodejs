@@ -8,7 +8,7 @@ const BACKEND_URL = environment.apiUrl;
 @Injectable({providedIn: 'root'})
 export class WebsocketService {
 
-    socket: any;
+    private socket: any;
 
     constructor() {
         this.socket = io(BACKEND_URL);

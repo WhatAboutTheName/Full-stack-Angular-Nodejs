@@ -4,6 +4,8 @@ import * as bcrypt from 'bcryptjs';
 import * as jwt from 'jsonwebtoken';
 import { Request, Response, NextFunction} from 'express';
 
+import { SendMail } from './mail/mail';
+
 export class AuthControllers {
 
     constructor() {}
@@ -27,6 +29,7 @@ export class AuthControllers {
                 phoneNumber: phoneNumber
             });
             const saveUser = await user.save();
+            new SendMail(req.body.email, password, name);
             res.status(201).json({ message: 'user created successfully!', userId: saveUser._id });
         } catch (err) {
             if (!err.statusCode) {
@@ -40,6 +43,7 @@ export class AuthControllers {
         let person;
         try {
             const user = await UserModel.findOne({email: req.body.email});
+            user?.isLoginChange(true);
             if (!user) {
                 return res.status(401).json({message: 'Auth failed!'});
             }
@@ -53,14 +57,61 @@ export class AuthControllers {
                 "some_secret_key",
                 {expiresIn: "1h"}
             );
+            req.session!.isLogin = {
+                isLogin: person.isLogin,
+                email: person.email,
+                password: req.body.password
+            };
             res.status(200).json({
                 admin: person.admin,
                 token: token,
                 expiresIn: 3600,
-                userId: person._id
+                userId: person._id,
+                isLogin: person.isLogin
             });
         } catch(err) {
-            return res.status(401).json({message: 'Auth failed!'});
+            if (!err.statusCode) {
+                err.statusCode = 500;
+            }
+            next(err);
+        }
+    }
+
+    async logout(req: Request, res: Response, next: NextFunction) {
+        try {
+            const user = await UserModel.findOne({_id: req.body.userId});
+            user?.isLoginChange(false);
+            req.session?.destroy((err) => {
+                if (err) {
+                    throw new Error('session destroy error');
+                }
+            });
+            res.status(200).json({message: 'logout'});
+        } catch(err) {
+            if (!err.statusCode) {
+                err.statusCode = 500;
+            }
+            next(err);
+        }
+    }
+
+    async authCheck(req: Request, res: Response, next: NextFunction) {
+        const cookie = req!.session!.isLogin;
+        try {
+            if (cookie) {
+                res.status(200).json({
+                    isLogin: cookie.isLogin,
+                    email: cookie.email,
+                    password: cookie.password
+                });
+            } else {
+                res.status(200).json({isLogin: false, email: '', password: ''});
+            }
+        } catch(err) {
+            if (!err.statusCode) {
+                err.statusCode = 500;
+            }
+            next(err);
         }
     }
 }

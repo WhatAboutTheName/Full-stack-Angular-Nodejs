@@ -12,7 +12,6 @@ export class AddProductComponent implements OnInit {
   form: FormGroup;
   imagePreview: string;
 
-
   constructor(private adminRouts: AdminRoutsService) { }
 
   ngOnInit() {
@@ -25,8 +24,9 @@ export class AddProductComponent implements OnInit {
         Validators.required,
         Validators.minLength(1)
       ] }),
-      image: new FormControl(null, { validators: [Validators.required]
-      })
+      image: new FormControl(null, { validators: [
+        Validators.required
+      ] })
     });
   }
 

@@ -1,13 +1,17 @@
 export interface IProduct {
     title: string,
     price: string,
-    image: string
+    image: string,
+    quantity?: number
 }
 
 export interface IOrderItem {
   _id: string,
   userId: string,
-  prodId: string,
-  allSum: number,
-  orderId: string
+  prodData: [{
+    prodId: string,
+    prodQuantity: number
+  }],
+  orderId: string,
+  processing: boolean
 }

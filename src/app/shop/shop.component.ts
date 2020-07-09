@@ -1,9 +1,11 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, AfterViewChecked } from '@angular/core';
 import { AllRoutsService } from '../service/all-routs.service';
 import { Product } from '../interface/product';
 import { Subscription } from 'rxjs';
 import { AuthService } from '../service/auth.service';
 import { WebsocketService } from '../service/websocket.service';
+import { MatDialog, MatDialogConfig } from '@angular/material';
+import { EditComponent } from './edit/edit.component';
 
 @Component({
   selector: 'app-shop',
@@ -11,18 +13,22 @@ import { WebsocketService } from '../service/websocket.service';
   styleUrls: ['./shop.component.scss']
 })
 export class ShopComponent implements OnInit, OnDestroy {
-  products: Product[];
-  private productsList: Subscription;
 
-  test;
+  adminAuth = false;
+  products: Product[];
+  userId: string;
+  private productsList: Subscription;
 
   constructor(
     private allRouts: AllRoutsService,
     private auth: AuthService,
-    private websoket: WebsocketService
+    private websoket: WebsocketService,
+    private dialog: MatDialog
   ) { }
 
   ngOnInit() {
+    this.userId = this.auth.getUserId();
+    this.adminAuth = this.auth.getAdminValue();
     this.websoket.listen('newProduct').subscribe((data: {action: string, product: any}) => {
       this.products.push(data.product);
     });
@@ -34,7 +40,15 @@ export class ShopComponent implements OnInit, OnDestroy {
   }
 
   addToCart(id: string) {
-    this.allRouts.addToCart(id, this.auth.getUserId());
+    this.allRouts.addToCart(id, this.userId);
+  }
+
+  edit(prodId: string) {
+    const dialogConfig = new MatDialogConfig();
+    dialogConfig.data = {
+      prodId: prodId,
+    };
+    this.dialog.open(EditComponent, dialogConfig);
   }
 
   ngOnDestroy() {

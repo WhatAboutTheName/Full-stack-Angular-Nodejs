@@ -1,24 +1,63 @@
 <div *ngIf="userData">
   <mat-accordion>
-    <mat-expansion-panel *ngFor="let data of userData">
+    <mat-expansion-panel *ngFor="let data of userData; let i = index">
       <mat-expansion-panel-header>
         <span class="title">
           <p class="user_name">Name: {{data.name}}</p>
           <p class="user_email">Email: {{data.email}}</p>
           <p class="user_phoneNumber">Phone number: {{data.phoneNumber}}</p>
-          <p class="user_allSum">Sum: ${{data.allSum}}</p>
+          <p class="user_allSum">Sum: ${{allSumArr[i]}}</p>
         </span>
       </mat-expansion-panel-header>
-      <div class="order_data">
-        <mat-card *ngFor="let order of data.order">
-          <img [src]="order.image" [alt]="order.title" class="image">
-          <p>Title: {{order.title}}</p>
-          <p>Price: ${{order.price}}</p>
+      <div class="content">
+        <mat-card class="product" *ngFor="let order of data.order">
+          <div class="prod_content">
+            <div class="prod_image">
+              <img [src]="order.prod.image" [alt]="order.prod.title" class="image">
+            </div>
+            <div class="prod_info">
+              <p>Title: {{order.prod.title}}</p>
+              <p>Quantity: {{order.quantity}}</p>
+              <p>Price: ${{order.prod.price * order.quantity}}</p>
+            </div>
+            <div class="btn_content">
+              <button
+                *ngIf="adminAuth"
+                mat-raised-button
+                (click)="edit(order.prod._id, order.quantity, data.userId, data.orderId)">
+                Edit
+              </button>
+              <button
+                *ngIf="adminAuth"
+                mat-raised-button
+                (click)="delete(order.prod._id, 0, data.userId, data.orderId)">
+                Delete
+              </button>
+            </div>
+          </div>
         </mat-card>
       </div>
       <mat-action-row>
-        <button mat-button color="primary" *ngIf="adminAuth" (click)="executeOrder(data.userId, data.orderId)">EXECUTE THE ORDER</button>
-        <button mat-button color="warn" (click)="cancelOrder(data.userId, data.orderId)">CANCEL THE ORDER</button>
+        <button
+          mat-button
+          color="primary"
+          *ngIf="adminAuth"
+          (click)="executeOrder(data.userId, data.orderId)">
+          EXECUTE THE ORDER
+        </button>
+        <button
+          mat-button
+          color="primary"
+          *ngIf="adminAuth"
+          (click)="inProcessing(data.userId, data.orderId)">
+          IN PROCESSING
+        </button>
+        <button
+          mat-button
+          color="warn"
+          (click)="cancelOrder(data.userId, data.orderId)">
+          CANCEL THE ORDER
+        </button>
       </mat-action-row>
     </mat-expansion-panel>
   </mat-accordion>

@@ -7,11 +7,14 @@ export interface IUserModel extends IUser, mongoose.Document {
   deleteItemFromCart(productId: mongoose.Schema.Types.ObjectId): IUser;
   deleteCart(): IUser;
   addToOrder(userId: mongoose.Schema.Types.ObjectId,
-    prodId: mongoose.Schema.Types.ObjectId,
-    allSum: string,
+    prodData: [{ prodId: string, prodQuantity: number }],
     orderId?: mongoose.Schema.Types.ObjectId): IUser;
   deleteOrder(orderId: mongoose.Schema.Types.ObjectId, admin: boolean): IUser;
   orderStatisticsAll(value: boolean): IUser;
+  updateOrderProduct(prodId: string, quantity: number, orderId: string, admin: boolean): IUser;
+  updateCartProduct(prodId: string, quantity: number): IUser;
+  inProcessing(orderId: string, admin: boolean): IUser;
+  isLoginChange(flag: boolean): IUser;
 }
 
 const Schema = mongoose.Schema;
@@ -34,6 +37,11 @@ const userSchema: mongoose.Schema = new Schema({
     required: true
   },
   admin: {
+    type: Boolean,
+    required: true,
+    default: false
+  },
+  isLogin: {
     type: Boolean,
     required: true,
     default: false
@@ -68,21 +76,34 @@ const userSchema: mongoose.Schema = new Schema({
         type: Schema.Types.ObjectId,
         required: true
       },
-      prodId: [{
-        type: Schema.Types.ObjectId,
-        required: true
-      }],
-      allSum: {
-        type: Number,
-        required: true
-      },
+      prodData: [
+        {
+          prodId: {
+            type: Schema.Types.ObjectId,
+            required: true
+          },
+          prodQuantity: {
+            type: Number,
+            required: true
+          }
+        }
+      ],
       orderId: {
         type: Schema.Types.ObjectId,
         required: false
+      },
+      processing: {
+        type: Boolean,
+        required: false,
+        default: false
       }
     }
   ]
-});
+}, 
+  {
+    versionKey: false
+  }
+);
 
 interface ICartItem {
   _id: string,
@@ -96,6 +117,11 @@ interface IProductItem {
   price: string,
   image: string
 }
+
+userSchema.methods.isLoginChange = function(flag: boolean) {
+  this.isLogin = flag;
+  return this.save();
+};
 
 userSchema.methods.addToCart = function(product: IProductItem) {
   const cartProductIndex = this.cart.items.findIndex((item: ICartItem) => {
@@ -133,9 +159,13 @@ userSchema.methods.deleteCart = function() {
   return this.save();
 };
 
-userSchema.methods.addToOrder = function(userId: string, prodId: string, allSum: number, orderId: string) {
+userSchema.methods.addToOrder = function(
+    userId: string,
+    prodData: [{ prodId: string, prodQuantity: number }],
+    orderId: string
+  ) {
   const newOrder = [...this.order];
-  newOrder.push({userId: userId, prodId: prodId, allSum: allSum, orderId: orderId});
+  newOrder.push({userId: userId, prodData: prodData, orderId: orderId});
   this.order = newOrder;
   return this.save();
 }
@@ -157,6 +187,56 @@ userSchema.methods.orderStatisticsAll = function(value: boolean) {
   } else {
     this.orderStatistics.Successful += 1;
   }
+  return this.save();
+}
+
+userSchema.methods.updateOrderProduct = function(prodId: string, quantity: number, orderId: string, admin: boolean) {
+  this.order.filter((item: IOrderItem) => {
+    if (admin) {
+      item.orderId === orderId.toString();
+    } else {
+      item._id === orderId.toString();
+    }
+    return item.prodData.filter(prod => {
+      if (prod.prodId.toString() === prodId.toString()) {
+        Number(quantity) === 0 ? item.prodData.splice(item.prodData.indexOf(prod), 1) : prod.prodQuantity = quantity;
+      }
+      return item;
+    });
+  });
+  return this.save();
+}
+
+userSchema.methods.updateCartProduct = function(prodId: string, quantity: number) {
+  let newCartItem = [];
+  newCartItem = this.cart.items.filter((item: ICartItem) => {
+    if (item.productId.toString() === prodId.toString()) {
+      item.quantity = quantity;
+    }
+    return item;
+  });
+  this.cart.items = newCartItem;
+  return this.save();
+};
+
+userSchema.methods.inProcessing = function(orderId: string, admin: boolean) {
+  let newOrder = [];
+  if (admin) {
+    newOrder = this.order.filter((item: IOrderItem) => {
+      if (item.orderId.toString() === orderId.toString()) {
+        item.processing = !item.processing;
+      }
+      return item;
+    });
+  } else {
+    newOrder = this.order.filter((item: IOrderItem) => {
+      if (item._id.toString() === orderId.toString()) {
+        item.processing = !item.processing;
+      }
+      return item;
+    });
+  }
+  this.order = newOrder;
   return this.save();
 }
 

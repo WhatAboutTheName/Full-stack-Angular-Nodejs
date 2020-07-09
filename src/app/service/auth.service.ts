@@ -3,6 +3,7 @@ import { HttpClient } from "@angular/common/http";
 import { Subject } from 'rxjs';
 import { Router } from '@angular/router';
 import { environment } from '../../environments/environment';
+import { AutoAuthI } from '../interface/auto-auth';
 
 const BACKEND_URL = environment.apiUrl + 'user/';
 
@@ -15,7 +16,7 @@ export class AuthService {
     private tokenTimer: any;
     private userId: string;
     private authListener = new Subject<boolean>();
-
+    private autoAuthListener = new Subject<AutoAuthI>();
 
     constructor(
         private http: HttpClient,
@@ -42,19 +43,24 @@ export class AuthService {
         return this.authChecked;
     }
 
-    Signup(name: string, email: string, password: string, phoneNumber: string) {
-        const user = {name: name, email: email, password: password, phoneNumber: phoneNumber}
-        this.http
-            .put(BACKEND_URL + 'signup', user)
+    signup(name: string, email: string, password: string, phoneNumber: string) {
+        const user = { name: name, email: email, password: password, phoneNumber: phoneNumber };
+        this.http.put(BACKEND_URL + 'signup', user)
             .subscribe(res => {
                 this.router.navigate(['/auth/login']);
             });
     }
 
-    Login(email: string, password: string) {
-        const login = {email: email, password: password}
+    login(email: string, password: string) {
+        const login = {email: email, password: password};
         this.http
-            .post<{token: string, expiresIn: number, admin: boolean, userId: string}>(BACKEND_URL + 'login', login)
+            .post<{
+                token: string,
+                expiresIn: number,
+                admin: boolean,
+                userId: string,
+                isLogin: boolean
+            }>(BACKEND_URL + 'login', login, {withCredentials: true})
             .subscribe(res => {
                 const token = res.token;
                 this.token = token;
@@ -63,7 +69,7 @@ export class AuthService {
                     const time = res.expiresIn;
                     this.userId = res.userId;
                     this.authTimer(time);
-                    this.authChecked = true;
+                    this.authChecked = res.isLogin;
                     this.authListener.next(true);
                     const now = new Date();
                     const expDate = new Date(now.getTime() + time * 1000);
@@ -92,36 +98,40 @@ export class AuthService {
         }
     }
 
-    Logout() {
-        this.token = null;
-        this.authChecked = false;
-        this.adminChecked = false;
-        this.authListener.next(false);
-        this.userId = null;
-        clearTimeout(this.tokenTimer);
-        this.clearAuth();
-        this.router.navigate(['/auth/login']);
+    logout() {
+        const id = {userId: this.userId};
+        this.http.put(BACKEND_URL + 'logout', id, {withCredentials: true})
+            .subscribe(res => {
+                this.token = null;
+                this.authChecked = false;
+                this.adminChecked = false;
+                this.authListener.next(false);
+                this.userId = null;
+                clearTimeout(this.tokenTimer);
+                this.clearAuth();
+                this.router.navigate(['/auth/login']);
+            });
     }
 
-    authTimer(time: number) {
+    private authTimer(time: number) {
         this.tokenTimer = setTimeout(() => {
-            this.Logout();
+            this.logout();
         }, time * 1000);
     }
 
-    saveAuth(token: string, expDate: Date, userId: string) {
+    private saveAuth(token: string, expDate: Date, userId: string) {
         localStorage.setItem('token', token);
         localStorage.setItem('expDate', expDate.toISOString());
         localStorage.setItem('userId', userId);
     }
 
-    clearAuth() {
+    private clearAuth() {
         localStorage.removeItem('token');
         localStorage.removeItem('expDate');
         localStorage.removeItem('userId');
     }
 
-    getAuthData() {
+    private getAuthData() {
         const token = localStorage.getItem('token');
         const expDate = localStorage.getItem('expDate');
         const userId = localStorage.getItem('userId');
@@ -134,5 +144,13 @@ export class AuthService {
             expDate: new Date(expDate),
             userId: userId
         };
+    }
+
+    authCheck() {
+        this.http.get<AutoAuthI>(BACKEND_URL + 'auth-check', {withCredentials: true})
+            .subscribe(res => {
+                this.autoAuthListener.next(res);
+            });
+        return this.autoAuthListener.asObservable();
     }
 }

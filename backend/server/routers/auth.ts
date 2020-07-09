@@ -28,3 +28,7 @@ AuthRoutes.put(
     ,authControllers.signup);
 
 AuthRoutes.post('/login', authControllers.login);
+
+AuthRoutes.put('/logout', authControllers.logout);
+
+AuthRoutes.get('/auth-check', authControllers.authCheck);

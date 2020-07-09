@@ -11,6 +11,21 @@ export class Controllers {
     try {
       const prod = await ProductModel.find();
       res.status(200).json({
+        message: 'Fetched products successfully.',
+        product: prod
+      });
+    } catch(err) {
+      if (!err.statusCode) {
+        err.statusCode = 500;
+      }
+      next(err);
+    }
+  }
+
+  async getProduct(req: Request, res: Response, next: NextFunction) {
+    try {
+      const prod = await ProductModel.findOne({_id: req.query.prodId});
+      res.status(200).json({
         message: 'Fetched product successfully.',
         product: prod
       });
@@ -75,15 +90,14 @@ export class Controllers {
   
   async orderCreate (req: Request, res: Response, next: NextFunction) {
     const userId = req.body.userId;
-    const prodId = req.body.prodId;
-    const allSum = req.body.allSum;
+    const prodData = req.body.prodData;
     try {
       const admin: IUserModel | null = await UserModel.findOne({admin: true});
       const user: IUserModel | null = await UserModel.findById(userId);
       await user?.deleteCart();
-      user?.addToOrder(userId, prodId, allSum);
+      user?.addToOrder(userId, prodData);
       const orderId = await user?.order[user?.order.length - 1]._id;
-      admin?.addToOrder(userId, prodId, allSum, orderId);
+      admin?.addToOrder(userId, prodData, orderId);
       res.status(200).json({message: 'Order create!'});
     } catch(err) {
       if (!err.statusCode) {
@@ -100,9 +114,12 @@ export class Controllers {
       const person: IUserModel | null = await UserModel.findById(req.query.id);
       for (let i = 0; i < (person ? person.order.length : 0); i++) {
         prodArr = []
-        for (let z = 0; z < (person ? person.order[i].prodId.length : 0); z++) {
-          const prod = await ProductModel.findById(person?.order[i].prodId[z]);
-          prodArr.push(prod);
+        for (let z = 0; z < (person ? person.order[i].prodData.length : 0); z++) {
+          const prod = await ProductModel.findById(person?.order[i].prodData[z].prodId);
+          if (prod) {
+            let el: object = { quantity: person?.order[i].prodData[z].prodQuantity, prod: prod };
+            prodArr.push(el);
+          }
         }
         if (person?.admin) {
           const user: IUserModel | null = await UserModel.findById(person?.order[i].userId);
@@ -110,24 +127,24 @@ export class Controllers {
             name: user?.name,
             email: user?.email,
             phoneNumber: user?.phoneNumber,
-            allSum: person.order[i].allSum,
             order: prodArr,
             userId: user?._id,
-            orderId: person.order[i].orderId
+            orderId: person.order[i].orderId,
+            processing: person.order[i].processing
           });
         } else {
           data.push({
             name: person?.name,
             email: person?.email,
             phoneNumber: person?.phoneNumber,
-            allSum: person?.order[i].allSum,
             order: prodArr,
             userId: person?._id,
-            orderId: person?.order[i]._id
+            orderId: person?.order[i]._id,
+            processing: person?.order[i].processing
           });
         }
       }
-      WSocketIO.getIO().emit('Order', {action: 'getOrders', data: data});
+      WSocketIO.getIO().emit('Order', {data: data});
       res.status(200).json({message: 'Get order!'});
     } catch (err) {
       if (!err.statusCode) {
@@ -139,7 +156,8 @@ export class Controllers {
   
   async deleteOrder (req: Request, res: Response, next: NextFunction) {
     let prodArr = [],
-    data = [];
+        data = [],
+        processing = false;
     const userId = req.body.userId;
     const orderId = req.body.orderId;
     const activUserId = req.body.activUserId;
@@ -151,23 +169,62 @@ export class Controllers {
       await user?.deleteOrder(orderId, user.admin);
       const activUser: IUserModel | null = await UserModel.findById(activUserId);
       for(let personOrder of (activUser ? activUser.order : [])) {
-        for (let i = 0; i < personOrder.prodId.length; i++) {
-          const prod = await ProductModel.findById(personOrder.prodId[i]);
-          prodArr.push(prod);
+        for (let i = 0; i < personOrder.prodData.length; i++) {
+          const prod = await ProductModel.findById(personOrder.prodData[i].prodId);
+          if (prod) {
+            let el: object = { quantity: personOrder.prodData[i].prodQuantity, prod: prod };
+            processing = personOrder.processing;
+            prodArr.push(el);
+          }
         }
         data.push({
           name: activUser?.name,
           email: activUser?.email,
           phoneNumber: activUser?.phoneNumber,
-          allSum: personOrder.allSum,
           order: prodArr,
           userId: activUser?._id,
-          orderId: personOrder._id
+          orderId: personOrder._id,
+          processing: processing
         });
       }
-      WSocketIO.getIO().emit('Order', {action: 'deleteOrders', data: data});
+      WSocketIO.getIO().emit('Order', {data: data});
       res.status(200).json({message: 'Delete order!'});
     } catch (err) {
+      if (!err.statusCode) {
+        err.statusCode = 500;
+      }
+      next(err);
+    }
+  }
+
+  async updateOrderProduct (req: Request, res: Response, next: NextFunction) {
+    const prodId = req.body.prodId;
+    const quantity = req.body.quantity;
+    const userId = req.body.userId;
+    const orderId = req.body.orderId;
+    try {
+      const admin: IUserModel | null = await UserModel.findOne({admin: true});
+      const user: IUserModel | null = await UserModel.findById(userId);
+      await admin?.updateOrderProduct(prodId, quantity, orderId, true);
+      await user?.updateOrderProduct(prodId, quantity, orderId, false);
+      res.status(200).json({message: 'Product in order update!'});
+    } catch(err) {
+      if (!err.statusCode) {
+        err.statusCode = 500;
+      }
+      next(err);
+    }
+  }
+
+  async updateCartProduct (req: Request, res: Response, next: NextFunction) {
+    const prodId = req.body.prodId;
+    const quantity = req.body.quantity;
+    const userId = req.body.userId;
+    try {
+      const user: IUserModel | null = await UserModel.findById(userId);
+      await user?.updateCartProduct(prodId, quantity);
+      res.status(200).json({message: 'Product in cart update!'});
+    } catch(err) {
       if (!err.statusCode) {
         err.statusCode = 500;
       }

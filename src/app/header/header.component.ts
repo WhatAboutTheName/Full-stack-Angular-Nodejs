@@ -8,6 +8,7 @@ import { Subscription } from 'rxjs';
   styleUrls: ['./header.component.scss']
 })
 export class HeaderComponent implements OnInit, OnDestroy {
+
   userAuth = false;
   adminAuth = false;
   private authListener: Subscription;
@@ -15,16 +16,15 @@ export class HeaderComponent implements OnInit, OnDestroy {
   constructor(private auth: AuthService) { }
 
   ngOnInit() {
-    this.authListener = this.auth
-      .getAuthListener()
+    this.authListener = this.auth.getAuthListener()
       .subscribe(auth => {
         this.userAuth = auth;
         this.adminAuth = this.auth.getAdminValue();
       });
   }
 
-  Logout() {
-    this.auth.Logout();
+  logout() {
+    this.auth.logout();
   }
 
   ngOnDestroy() {

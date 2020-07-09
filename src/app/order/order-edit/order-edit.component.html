@@ -1,0 +1,13 @@
+<div class="contauner">
+    <form [formGroup]="form" (submit)="updateProduct()" class="form">
+        <mat-form-field class="example-full-width mat_form quantity">
+            <mat-label>Quantity</mat-label>
+            <input matInput [ngModel]="quantity" formControlName="quantity" placeholder="quantity" type="text">
+        </mat-form-field>
+        <div class="image-preview">
+            <img [src]="product?.image" [alt]="product?.title">
+        </div>
+        <button mat-raised-button color="primary" type="submit" class="btn">accept</button>
+        <button mat-raised-button (click)="close()">close</button>
+    </form>
+</div>

@@ -14,6 +14,10 @@ import { AddProductComponent } from './add-product/add-product.component';
 import { CartComponent } from './cart/cart.component';
 import { AngularMaterialModule } from './angular-material.module';
 import { OrderComponent } from './order/order.component';
+import { EditComponent } from './shop/edit/edit.component';
+import { MatDialogModule } from '@angular/material';
+import { OrderEditComponent } from './order/order-edit/order-edit.component';
+import { CartEditComponent } from './cart/cart-edit/cart-edit.component';
 
 @NgModule({
   declarations: [
@@ -23,6 +27,9 @@ import { OrderComponent } from './order/order.component';
     AddProductComponent,
     CartComponent,
     OrderComponent,
+    EditComponent,
+    OrderEditComponent,
+    CartEditComponent,
   ],
   imports: [
     AngularMaterialModule,
@@ -32,9 +39,21 @@ import { OrderComponent } from './order/order.component';
     FormsModule,
     HttpClientModule,
     ReactiveFormsModule,
+    MatDialogModule,
   ],
-  providers: [{provide: HTTP_INTERCEPTORS, useClass: AuthIntercepter, multi: true}],
+  providers: [
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: AuthIntercepter,
+      multi: true
+    }
+  ],
   bootstrap: [AppComponent],
+  entryComponents: [
+    EditComponent,
+    OrderEditComponent,
+    CartEditComponent
+  ],
   schemas: [ CUSTOM_ELEMENTS_SCHEMA ]
 })
 export class AppModule { }

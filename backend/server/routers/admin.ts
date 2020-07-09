@@ -33,8 +33,17 @@ const storage = multer.diskStorage({
 });
 
 AdminRoutes.post('/addProduct',
-  checkAuth, multer({ storage: storage }).single("image"),
+  checkAuth,
+  multer({ storage: storage }).single("image"),
   adminControllers.addProduct
 );
 
 AdminRoutes.patch('/execute-order', checkAuth, adminControllers.executeOrder);
+
+AdminRoutes.put('/update-product',
+  checkAuth,
+  multer({ storage: storage }).single("image"),
+  adminControllers.updateProduct
+);
+
+AdminRoutes.put('/in-processing', checkAuth, adminControllers.inProcessing);

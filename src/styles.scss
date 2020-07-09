@@ -30,3 +30,37 @@ $shop-theme: mat-light-theme($shop-primary, $shop-accent, $shop-warn);
 
 html, body { height: 100%; }
 body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+
+.product {
+    width: 17rem;
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 2rem;
+}
+
+.prod_image {
+    grid-area: prod_image;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.prod_info {
+    grid-area: prod_info;
+}
+
+.btn_content {
+    grid-area: btn_content;
+}
+
+.prod_content {
+    text-align: center;
+    display: block;
+    display: grid;
+    grid-template-columns: 1fr;
+    grid-template-rows: 18.5rem 5.5rem auto;
+    grid-template-areas: 
+    "prod_image"
+    "prod_info"
+    "btn_content";
+}

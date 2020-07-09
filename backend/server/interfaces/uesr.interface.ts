@@ -6,6 +6,7 @@ export interface IUser {
   password: string,
   phoneNumber: string,
   admin: boolean,
+  isLogin: boolean,
   cart: {
     items: [
       {
@@ -22,9 +23,12 @@ export interface IUser {
     {
       _id: mongoose.Schema.Types.ObjectId,
       userId: string,
-      prodId: string[],
-      allSum: number,
-      orderId?: string
+      prodData: [{
+        prodId: string,
+        prodQuantity: number
+      }],
+      orderId?: string,
+      processing: boolean
     }
   ],
 }
